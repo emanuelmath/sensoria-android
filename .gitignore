@@ -1,0 +1,76 @@
+# ==========================================
+# ANDROID STUDIO / INTELLIJ IDEA
+# ==========================================
+*.iml
+.gradle
+/local.properties
+.idea/
+
+# ==========================================
+# BUILD OUTPUTS & CACHES
+# ==========================================
+/build/
+**/build/
+.apt_generated/
+.settings/
+.externalNativeBuild/
+.cxx/
+captures/
+.gradle/
+!gradle-wrapper.jar
+
+# ==========================================
+# SIGNING & SECURITY
+# ==========================================
+*.jks
+*.keystore
+*.p12
+*.pem
+*.key
+**/keystore.properties
+**/signing.properties
+
+# ==========================================
+# MOBILE & OS SPECIFIC FILES
+# ==========================================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+~*
+.Trash-*
+
+# ==========================================
+# EDITORS & IDEs (VS Code, Rider, etc.)
+# ==========================================
+.vscode/
+.idea_modules/
+*.suo
+*.ntvs
+*.njsproj
+*.sln
+*.swp
+*.swo
+*~
+
+# ==========================================
+# LOGS, DATABASES & RUNTIME ARTIFACTS
+# ==========================================
+*.log
+*.sqlite
+*.sqlite3
+*.db
+*.bak
+.tmp
+.temp

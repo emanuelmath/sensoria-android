@@ -1,0 +1,45 @@
+package com.example.sensoria.core.di
+
+import android.content.Context
+import com.example.sensoria.data.local.AuthPreferences
+import com.example.sensoria.data.local.dataStore
+import com.example.sensoria.data.remote.AuthApi
+import com.example.sensoria.data.remote.RetrofitClient
+import com.example.sensoria.data.repositories.AuthRepositoryImpl
+import com.example.sensoria.domain.repositories.AuthRepository
+import com.example.sensoria.domain.usecases.LoginUseCase
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.components.SingletonComponent
+import javax.inject.Singleton
+
+@Module
+@InstallIn(SingletonComponent::class)
+object AppModule {
+
+    @Provides
+    @Singleton
+    fun provideAuthPreferences(@ApplicationContext context: Context): AuthPreferences {
+        return AuthPreferences(context.dataStore)
+    }
+
+    @Provides
+    @Singleton
+    fun provideAuthApi(authPreferences: AuthPreferences): AuthApi {
+        return RetrofitClient.createAuthApi(authPreferences)
+    }
+
+    @Provides
+    @Singleton
+    fun provideAuthRepository(api: AuthApi, preferences: AuthPreferences): AuthRepository {
+        return AuthRepositoryImpl(api, preferences)
+    }
+
+    @Provides
+    @Singleton
+    fun provideLoginUseCase(repository: AuthRepository): LoginUseCase {
+        return LoginUseCase(repository)
+    }
+}
