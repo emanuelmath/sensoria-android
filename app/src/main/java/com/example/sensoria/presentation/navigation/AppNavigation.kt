@@ -8,8 +8,8 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.example.sensoria.presentation.auth.LoginScreen
 import com.example.sensoria.presentation.auth.LoginViewModel
-import com.example.sensoria.presentation.dashboard.DashboardScreen
-import com.example.sensoria.presentation.dashboard.DashboardViewModel
+import com.example.sensoria.presentation.dashboard.MainScreen
+import com.example.sensoria.presentation.dashboard.DeviceDetailScreen
 
 @Composable
 fun AppNavigation() {
@@ -19,24 +19,36 @@ fun AppNavigation() {
 
         composable<LoginRoute> {
             val loginViewModel: LoginViewModel = hiltViewModel()
-
             LoginScreen(
                 viewModel = loginViewModel,
                 onLoginSuccess = { companyId ->
-                    navController.navigate(DashboardRoute(companyId = companyId)) {
+                    navController.navigate(MainRoute(companyId = companyId)) {
                         popUpTo(LoginRoute) { inclusive = true }
                     }
                 }
             )
         }
 
-        composable<DashboardRoute> { backStackEntry ->
-            val dashboardRoute = backStackEntry.toRoute<DashboardRoute>()
-            val dashboardViewModel: DashboardViewModel = hiltViewModel()
+        composable<MainRoute> { backStackEntry ->
+            val route = backStackEntry.toRoute<MainRoute>()
+            MainScreen(
+                companyId = route.companyId,
+                onNavigateToDetail = { deviceId ->
+                    navController.navigate(DeviceDetailRoute(deviceId = deviceId))
+                },
+                onLogout = {
+                    navController.navigate(LoginRoute) {
+                        popUpTo(0) { inclusive = true }
+                    }
+                }
+            )
+        }
 
-            DashboardScreen(
-                companyId = dashboardRoute.companyId,
-                viewModel = dashboardViewModel
+        composable<DeviceDetailRoute> { backStackEntry ->
+            val route = backStackEntry.toRoute<DeviceDetailRoute>()
+            DeviceDetailScreen(
+                deviceId = route.deviceId,
+                onBack = { navController.popBackStack() }
             )
         }
     }

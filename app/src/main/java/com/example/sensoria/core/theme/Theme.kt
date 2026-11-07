@@ -16,6 +16,7 @@ private val SensoriaColorScheme = lightColorScheme(
 fun SensoriaTheme(content: @Composable () -> Unit) {
     MaterialTheme(
         colorScheme = SensoriaColorScheme,
+        typography = SensoriaTypography,
         content = content
     )
 }

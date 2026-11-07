@@ -2,8 +2,6 @@ package com.example.sensoria.presentation.navigation
 
 import kotlinx.serialization.Serializable
 
-@Serializable
-object LoginRoute
-
-@Serializable
-data class DashboardRoute(val companyId: String)
+@Serializable data object LoginRoute
+@Serializable data class MainRoute(val companyId: String)
+@Serializable data class DeviceDetailRoute(val deviceId: String)
