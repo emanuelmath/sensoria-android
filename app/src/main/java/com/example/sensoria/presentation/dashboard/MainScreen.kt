@@ -76,7 +76,6 @@ fun MainScreen(
                 MainTab.PROFILE -> {
                     val profileViewModel: ProfileViewModel = hiltViewModel()
                     ProfileScreen(
-                        companyId = companyId,
                         viewModel = profileViewModel,
                         onLogout = onLogout
                     )

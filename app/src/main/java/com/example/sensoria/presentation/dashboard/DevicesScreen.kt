@@ -26,12 +26,14 @@ fun DevicesScreen(
 ) {
     val devices by viewModel.devices.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
+    val userName by viewModel.userName.collectAsState()
+    val companyName by viewModel.companyName.collectAsState()
 
     LaunchedEffect(companyId) { viewModel.loadDevicesForCompany(companyId) }
 
     Column(modifier = Modifier.padding(16.dp)) {
         Text(text = "Workspace Activo", fontSize = 14.sp, color = MaterialTheme.colorScheme.secondary)
-        Text(text = companyId, fontSize = 24.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+        Text(text = companyName, fontSize = 24.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
         Spacer(modifier = Modifier.height(24.dp))
         Text(text = "Tus Dispositivos IoT", fontSize = 18.sp, fontWeight = FontWeight.Bold)
         Spacer(modifier = Modifier.height(16.dp))
@@ -41,14 +43,18 @@ fun DevicesScreen(
                 CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
             }
         } else {
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                contentPadding = PaddingValues(bottom = 16.dp)
-            ) {
-                items(devices) { device ->
-                    DeviceCard(device, onClick = { onDeviceClick(device.id) })
-                }
-            }
+           if(devices.isEmpty()) {
+               Text("No tienes dispositivos aún.")
+           } else {
+               LazyColumn(
+                   verticalArrangement = Arrangement.spacedBy(12.dp),
+                   contentPadding = PaddingValues(bottom = 16.dp)
+               ) {
+                   items(devices) { device ->
+                       DeviceCard(device, onClick = { onDeviceClick(device.id) })
+                   }
+               }
+           }
         }
     }
 }
