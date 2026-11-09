@@ -16,30 +16,31 @@ class DeviceDetailViewModel @Inject constructor(
     private val getDeviceTelemetryUseCase: GetDeviceTelemetryUseCase
 ) : ViewModel() {
 
-    private val _telemetry = MutableStateFlow<List<TelemetryReading>>(emptyList())
-    val telemetry: StateFlow<List<TelemetryReading>> = _telemetry.asStateFlow()
-
-    private val _deviceName = MutableStateFlow("Cargando...")
-    val deviceName: StateFlow<String> = _deviceName.asStateFlow()
-
-    private val _isLoading = MutableStateFlow(false)
-    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+    private val _uiState = MutableStateFlow<DeviceDetailUiState>(DeviceDetailUiState.Loading)
+    val uiState: StateFlow<DeviceDetailUiState> = _uiState.asStateFlow()
 
     fun loadTelemetry(deviceId: String) {
+        val current = _uiState.value
+        _uiState.value = if (current is DeviceDetailUiState.Success) {
+            current.copy(isRefreshing = true)
+        } else {
+            DeviceDetailUiState.Loading
+        }
+
         viewModelScope.launch {
-            _isLoading.value = true
-            _deviceName.value = "Cargando..."
-
-            val result = getDeviceTelemetryUseCase(deviceId)
-
-            result.onSuccess { response ->
-                _deviceName.value = response.deviceName
-                _telemetry.value = response.readings.reversed()
-            }.onFailure {
-                _deviceName.value = "Error de conexión"
-            }
-
-            _isLoading.value = false
+            getDeviceTelemetryUseCase(deviceId)
+                .onSuccess { response ->
+                    _uiState.value = DeviceDetailUiState.Success(
+                        deviceName = response.deviceName,
+                        readings = response.readings.reversed()
+                    )
+                }
+                .onFailure { error ->
+                    _uiState.value = DeviceDetailUiState.Error(
+                        message = error.message ?: "No se pudo obtener los datos de telemetría."
+                    )
+                }
         }
     }
 }
+

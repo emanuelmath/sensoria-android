@@ -1,9 +1,7 @@
 package com.example.sensoria.presentation.dashboard
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Home
@@ -11,22 +9,37 @@ import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.sensoria.core.theme.VeryDarkGreen
+import com.example.sensoria.core.theme.PrimaryGreen
+import com.example.sensoria.core.theme.BackgroundLight
 import com.example.sensoria.presentation.profile.ProfileScreen
 import com.example.sensoria.presentation.profile.ProfileViewModel
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.outlined.Email
+import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.Notifications
+import androidx.compose.material.icons.outlined.Person
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 
-enum class MainTab(val title: String, val icon: ImageVector) {
-    DEVICES("Dispositivos", Icons.Default.Home),
-    ALERTS("Alertas", Icons.Default.Notifications),
-    SUPPORT("Soporte", Icons.Default.Email),
-    PROFILE("Perfil", Icons.Default.Person)
+enum class MainTab(
+    val title: String,
+    val selectedIcon: ImageVector,
+    val unselectedIcon: ImageVector
+) {
+    DEVICES("Dispositivos", Icons.Filled.Home, Icons.Outlined.Home),
+    ALERTS("Alertas", Icons.Filled.Notifications, Icons.Outlined.Notifications),
+    SUPPORT("Soporte", Icons.Filled.Email, Icons.Outlined.Email),
+    PROFILE("Perfil", Icons.Filled.Person, Icons.Outlined.Person)
 }
-
 @Composable
 fun MainScreen(
     companyId: String,
@@ -36,34 +49,53 @@ fun MainScreen(
     var selectedTab by remember { mutableStateOf(MainTab.DEVICES) }
 
     Scaffold(
+        containerColor = BackgroundLight,
         bottomBar = {
-            NavigationBar(
-                containerColor = MaterialTheme.colorScheme.surface,
-                tonalElevation = 8.dp
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(BackgroundLight)
+                    .navigationBarsPadding()
+                    .padding(top = 8.dp, bottom = 12.dp),
+                horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterHorizontally),
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 MainTab.entries.forEach { tab ->
-                    NavigationBarItem(
-                        icon = { Icon(tab.icon, contentDescription = tab.title) },
-                        label = { Text(tab.title, fontWeight = FontWeight.SemiBold) },
-                        selected = selectedTab == tab,
-                        onClick = { selectedTab = tab },
-                        colors = NavigationBarItemDefaults.colors(
-                            selectedIconColor = MaterialTheme.colorScheme.surface,
-                            selectedTextColor = MaterialTheme.colorScheme.primary,
-                            indicatorColor = MaterialTheme.colorScheme.primary,
-                            unselectedIconColor = Color.Gray,
-                            unselectedTextColor = Color.Gray
-                        )
+                    val isSelected = selectedTab == tab
+
+                    val containerColor by animateColorAsState(
+                        targetValue = if (isSelected) PrimaryGreen else VeryDarkGreen,
+                        label = "tabContainer"
                     )
+                    val iconColor by animateColorAsState(
+                        targetValue = if (isSelected) VeryDarkGreen else Color.White.copy(alpha = 0.75f),
+                        label = "tabIcon"
+                    )
+
+                    Box(
+                        modifier = Modifier
+                            .size(54.dp)
+                            .shadow(6.dp, RoundedCornerShape(18.dp))
+                            .clip(RoundedCornerShape(18.dp))
+                            .background(containerColor)
+                            .clickable { selectedTab = tab },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = if (isSelected) tab.selectedIcon else tab.unselectedIcon,
+                            contentDescription = tab.title,
+                            tint = iconColor,
+                            modifier = Modifier.size(26.dp)
+                        )
+                    }
                 }
             }
         }
     ) { innerPadding ->
-        // Contenedor que aísla el contenido de la barra
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
+                .background(BackgroundLight)
                 .padding(innerPadding)
         ) {
             when (selectedTab) {

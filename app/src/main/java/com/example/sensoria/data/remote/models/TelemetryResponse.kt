@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class TelemetryResponse(
-    @SerialName("device_id") val deviceId: String,
+    @SerialName("device_id") val deviceId: Int,
     @SerialName("device_name") val deviceName: String,
     val readings: List<TelemetryReadingDto>
 )
