@@ -27,25 +27,43 @@ class AuthRepositoryImpl(
                     role = "PENDIENTE"
                 )
             }
+            val userDomain: User
 
-            val defaultCompany = companiesDomain.firstOrNull()
-            val defaultCompanyId = defaultCompany?.id
-            val defaultCompanyName = defaultCompany?.name ?: "Sin Empresa"
+            if(companiesDomain.size <= 1) {
+                val defaultCompany = companiesDomain.firstOrNull()
+                val defaultCompanyId = defaultCompany?.id
+                val defaultCompanyName = defaultCompany?.name ?: "Sin Empresa"
 
-            val userDomain = User(
-                id = response.user.id,
-                name = response.user.name,
-                email = response.user.email,
-                companies = companiesDomain,
-                currentCompanyId = defaultCompanyId
-            )
+                userDomain = User(
+                    id = response.user.id,
+                    name = response.user.name,
+                    email = response.user.email,
+                    companies = companiesDomain,
+                    currentCompanyId = defaultCompanyId
+                )
 
-            preferences.saveAuthData(
-                token = response.token,
-                companyId = defaultCompanyId ?: "",
-                userName = userDomain.name,
-                companyName = defaultCompanyName
-            )
+                preferences.saveAuthData(
+                    token = response.token,
+                    companyId = defaultCompanyId ?: "",
+                    userName = userDomain.name,
+                    companyName = defaultCompanyName
+                )
+            } else {
+                userDomain = User(
+                    id = response.user.id,
+                    name = response.user.name,
+                    email = response.user.email,
+                    companies = companiesDomain,
+                    currentCompanyId = ""
+                )
+
+                preferences.saveAuthData(
+                    token = response.token,
+                    companyId = "",
+                    userName = userDomain.name,
+                    companyName = ""
+                )
+            }
 
             Result.success(userDomain)
 

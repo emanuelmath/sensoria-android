@@ -1,5 +1,6 @@
 package com.example.sensoria.presentation.navigation
 
+import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -21,10 +22,14 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.example.sensoria.R
 import com.example.sensoria.data.local.AuthPreferences
+import com.example.sensoria.domain.models.Company
 import com.example.sensoria.presentation.auth.LoginScreen
 import com.example.sensoria.presentation.auth.LoginViewModel
+import com.example.sensoria.presentation.auth.CompanySelectionScreen
 import com.example.sensoria.presentation.dashboard.MainScreen
 import com.example.sensoria.presentation.dashboard.DeviceDetailScreen
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
 @Composable
 fun AppNavigation(authPreferences: AuthPreferences) {
@@ -67,6 +72,29 @@ fun AppNavigation(authPreferences: AuthPreferences) {
                 onLoginSuccess = { companyId ->
                     navController.navigate(MainRoute(companyId = companyId)) {
                         popUpTo(LoginRoute) { inclusive = true }
+                    }
+                },
+                onRequireSelection = { companies ->
+                    // Convertimos la lista a JSON y codificamos la URI para que los espacios/símbolos no rompan la ruta.
+                    val companiesJson = Uri.encode(Json.encodeToString(companies))
+                    navController.navigate(CompanySelectionRoute(companiesJson = companiesJson))
+                }
+            )
+        }
+
+        composable<CompanySelectionRoute> { backStackEntry ->
+            val route = backStackEntry.toRoute<CompanySelectionRoute>()
+            // Decodificamos la URI y reconstruimos la lista.
+            val decodedJson = Uri.decode(route.companiesJson)
+            val companies = Json.decodeFromString<List<Company>>(decodedJson)
+
+            CompanySelectionScreen(
+                companies = companies,
+                authPreferences = authPreferences,
+                onCompanySelected = { companyId ->
+                    navController.navigate(MainRoute(companyId = companyId)) {
+                        // Limpiamos el stack completo para que no pueda volver con el botón "Atrás".
+                        popUpTo(0) { inclusive = true }
                     }
                 }
             )

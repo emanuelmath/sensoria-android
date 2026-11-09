@@ -44,6 +44,13 @@ class AuthPreferences(private val dataStore: DataStore<Preferences>) {
         }
     }
 
+    suspend fun saveCompanySelection(id: String, name: String) {
+        dataStore.edit { preferences ->
+            preferences[COMPANY_ID_KEY] = id
+            preferences[COMPANY_NAME_KEY] = name
+        }
+    }
+
     suspend fun clearAuthData() {
         dataStore.edit { preferences ->
             preferences.clear()

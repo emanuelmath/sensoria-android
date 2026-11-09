@@ -17,11 +17,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.sensoria.core.theme.glassSurface
 import com.example.sensoria.R
+import com.example.sensoria.domain.models.Company
 
 @Composable
 fun LoginScreen(
     viewModel: LoginViewModel,
-    onLoginSuccess: (String) -> Unit
+    onLoginSuccess: (String) -> Unit,
+    onRequireSelection: (List<Company>) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
     var email by remember { mutableStateOf("") }
@@ -113,15 +115,24 @@ fun LoginScreen(
                 is LoginUiState.Loading -> {
                     CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                 }
+                is LoginUiState.Success -> {
+                    LaunchedEffect(Unit) {
+                        onLoginSuccess((uiState as LoginUiState.Success).companyId)
+                    }
+                }
+                is LoginUiState.RequireCompanySelection -> {
+                    LaunchedEffect(Unit) {
+                        onRequireSelection((uiState as LoginUiState.RequireCompanySelection).companies)
+                        viewModel.resetState()
+                    }
+                }
                 is LoginUiState.Error -> {
                     val errorMsg = (uiState as LoginUiState.Error).message
                     Text(
                         text = errorMsg,
                         color = MaterialTheme.colorScheme.error,
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Medium
+                        modifier = Modifier.padding(top = 16.dp)
                     )
-                    Spacer(modifier = Modifier.height(16.dp))
                     LoginButton(email, password, viewModel)
                 }
                 else -> {

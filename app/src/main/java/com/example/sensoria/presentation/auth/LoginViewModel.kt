@@ -2,7 +2,8 @@ package com.example.sensoria.presentation.auth
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.sensoria.domain.usecases.LoginUseCase
+import com.example.sensoria.domain.models.Company
+import com.example.sensoria.domain.repositories.AuthRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -12,7 +13,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-    private val loginUseCase: LoginUseCase
+    private val repository: AuthRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<LoginUiState>(LoginUiState.Idle)
@@ -22,17 +23,27 @@ class LoginViewModel @Inject constructor(
         _uiState.value = LoginUiState.Loading
 
         viewModelScope.launch {
-            val result = loginUseCase(email.trim(), password)
+            val result = repository.login(email, password)
 
-            result.fold(
-                onSuccess = { user ->
-                    val companyId = user.currentCompanyId ?: "sin-empresa"
-                    _uiState.value = LoginUiState.Success(companyId)
-                },
-                onFailure = { exception ->
-                    _uiState.value = LoginUiState.Error(exception.message ?: "Error de red desconocido.")
+            result.onSuccess { user ->
+                when {
+                    user.companies.isEmpty() -> {
+                        _uiState.value = LoginUiState.Error("No tienes un espacio de trabajo asignado.")
+                    }
+                    user.companies.size == 1 -> {
+                        _uiState.value = LoginUiState.Success(user.companies.first().id)
+                    }
+                    else -> {
+                        _uiState.value = LoginUiState.RequireCompanySelection(user.companies)
+                    }
                 }
-            )
+            }.onFailure { error ->
+                _uiState.value = LoginUiState.Error(error.message ?: "Error desconocido")
+            }
         }
+    }
+
+    fun resetState() {
+        _uiState.value = LoginUiState.Idle
     }
 }

@@ -64,4 +64,10 @@ object AppModule {
     fun provideGetDevicesUseCase(repository: DeviceRepository): com.example.sensoria.domain.usecases.GetDevicesUseCase {
         return com.example.sensoria.domain.usecases.GetDevicesUseCase(repository)
     }
+
+    @Provides
+    @Singleton
+    fun provideGetDeviceTelemetryUseCase(repository: DeviceRepository): com.example.sensoria.domain.usecases.GetDeviceTelemetryUseCase {
+        return com.example.sensoria.domain.usecases.GetDeviceTelemetryUseCase(repository)
+    }
 }
