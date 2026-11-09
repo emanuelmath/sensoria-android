@@ -12,7 +12,7 @@ import com.example.sensoria.BuildConfig
 object RetrofitClient {
     private const val BASE_URL = BuildConfig.BASE_URL
 
-    fun createAuthApi(authPreferences: AuthPreferences): AuthApi {
+    private fun createRetrofit(authPreferences: AuthPreferences): Retrofit {
         val logging = HttpLoggingInterceptor().apply {
             level = HttpLoggingInterceptor.Level.BODY
         }
@@ -25,34 +25,20 @@ object RetrofitClient {
         val networkJson = Json { ignoreUnknownKeys = true }
         val contentType = "application/json".toMediaType()
 
-        val retrofit = Retrofit.Builder()
+        return Retrofit.Builder()
             .baseUrl(BASE_URL)
             .client(client)
             .addConverterFactory(networkJson.asConverterFactory(contentType))
             .build()
-
-        return retrofit.create(AuthApi::class.java)
     }
 
-    fun createDeviceApi(authPreferences: AuthPreferences): DeviceApi {
-        val logging = HttpLoggingInterceptor().apply {
-            level = HttpLoggingInterceptor.Level.BODY
-        }
+    // 2. Creación de APIs ultra limpia
+    fun createAuthApi(authPreferences: AuthPreferences): AuthApi =
+        createRetrofit(authPreferences).create(AuthApi::class.java)
 
-        val client = OkHttpClient.Builder()
-            .addInterceptor(logging)
-            .addInterceptor(AuthInterceptor(authPreferences))
-            .build()
+    fun createDeviceApi(authPreferences: AuthPreferences): DeviceApi =
+        createRetrofit(authPreferences).create(DeviceApi::class.java)
 
-        val networkJson = Json { ignoreUnknownKeys = true }
-        val contentType = "application/json".toMediaType()
-
-        val retrofit = Retrofit.Builder()
-            .baseUrl(BASE_URL)
-            .client(client)
-            .addConverterFactory(networkJson.asConverterFactory(contentType))
-            .build()
-
-        return retrofit.create(DeviceApi::class.java)
-    }
+    fun createTicketApi(authPreferences: AuthPreferences): TicketApi =
+        createRetrofit(authPreferences).create(TicketApi::class.java)
 }

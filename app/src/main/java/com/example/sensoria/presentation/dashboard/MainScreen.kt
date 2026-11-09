@@ -29,6 +29,8 @@ import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import com.example.sensoria.presentation.support.SupportScreen
+import com.example.sensoria.presentation.support.SupportViewModel
 
 enum class MainTab(
     val title: String,
@@ -43,7 +45,9 @@ enum class MainTab(
 @Composable
 fun MainScreen(
     companyId: String,
-    onNavigateToDetail: (String) -> Unit,
+    onNavigateToDeviceDetail: (String) -> Unit,
+    onNavigateToTicketDetail: (Int) -> Unit,
+    onCreateTicket: () -> Unit,
     onLogout: () -> Unit
 ) {
     var selectedTab by remember { mutableStateOf(MainTab.DEVICES) }
@@ -101,10 +105,17 @@ fun MainScreen(
             when (selectedTab) {
                 MainTab.DEVICES -> {
                     val viewModel: DashboardViewModel = hiltViewModel()
-                    DevicesScreen(companyId, viewModel, onNavigateToDetail)
+                    DevicesScreen(companyId, viewModel, onNavigateToDeviceDetail)
                 }
                 MainTab.ALERTS -> Text("Alertas", Modifier.padding(16.dp))
-                MainTab.SUPPORT -> Text("Soporte", Modifier.padding(16.dp))
+                MainTab.SUPPORT -> {
+                    val supportViewModel: SupportViewModel = hiltViewModel()
+                    SupportScreen(
+                        viewModel = supportViewModel,
+                        onNavigateToDetail = onNavigateToTicketDetail,
+                        onCreateTicket = onCreateTicket
+                    )
+                }
                 MainTab.PROFILE -> {
                     val profileViewModel: ProfileViewModel = hiltViewModel()
                     ProfileScreen(

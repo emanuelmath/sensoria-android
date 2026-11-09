@@ -6,11 +6,18 @@ import com.example.sensoria.data.local.dataStore
 import com.example.sensoria.data.remote.AuthApi
 import com.example.sensoria.data.remote.DeviceApi
 import com.example.sensoria.data.remote.RetrofitClient
+import com.example.sensoria.data.remote.TicketApi
 import com.example.sensoria.data.repositories.AuthRepositoryImpl
 import com.example.sensoria.data.repositories.DeviceRepositoryImpl
+import com.example.sensoria.data.repositories.TicketRepositoryImpl
 import com.example.sensoria.domain.repositories.AuthRepository
 import com.example.sensoria.domain.repositories.DeviceRepository
+import com.example.sensoria.domain.repositories.TicketRepository
+import com.example.sensoria.domain.usecases.CreateTicketUseCase
+import com.example.sensoria.domain.usecases.GetTicketDetailUseCase
+import com.example.sensoria.domain.usecases.GetTicketsUseCase
 import com.example.sensoria.domain.usecases.LoginUseCase
+import com.example.sensoria.domain.usecases.ReplyTicketUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -69,5 +76,41 @@ object AppModule {
     @Singleton
     fun provideGetDeviceTelemetryUseCase(repository: DeviceRepository): com.example.sensoria.domain.usecases.GetDeviceTelemetryUseCase {
         return com.example.sensoria.domain.usecases.GetDeviceTelemetryUseCase(repository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideTicketApi(authPreferences: AuthPreferences): TicketApi {
+        return RetrofitClient.createTicketApi(authPreferences)
+    }
+
+    @Provides
+    @Singleton
+    fun provideTicketRepository(api: TicketApi, authPreferences: AuthPreferences): TicketRepository {
+        return TicketRepositoryImpl(api, authPreferences)
+    }
+
+    @Provides
+    @Singleton
+    fun provideGetTicketsUseCase(repository: TicketRepository): GetTicketsUseCase {
+        return GetTicketsUseCase(repository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideGetTicketDetailUseCase(repository: TicketRepository): GetTicketDetailUseCase {
+        return GetTicketDetailUseCase(repository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideReplyTicketUseCase(repository: TicketRepository): ReplyTicketUseCase {
+        return ReplyTicketUseCase(repository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideCreateTicketUseCase(repository: TicketRepository): CreateTicketUseCase {
+        return CreateTicketUseCase(repository)
     }
 }

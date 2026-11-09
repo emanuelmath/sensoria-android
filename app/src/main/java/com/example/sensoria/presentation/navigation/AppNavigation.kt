@@ -28,6 +28,9 @@ import com.example.sensoria.presentation.auth.LoginViewModel
 import com.example.sensoria.presentation.auth.CompanySelectionScreen
 import com.example.sensoria.presentation.dashboard.MainScreen
 import com.example.sensoria.presentation.dashboard.DeviceDetailScreen
+import com.example.sensoria.presentation.support.create.CreateTicketScreen
+import com.example.sensoria.presentation.support.detail.TicketDetailScreen
+import com.example.sensoria.presentation.support.detail.TicketDetailViewModel
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
@@ -104,8 +107,14 @@ fun AppNavigation(authPreferences: AuthPreferences) {
             val route = backStackEntry.toRoute<MainRoute>()
             MainScreen(
                 companyId = route.companyId,
-                onNavigateToDetail = { deviceId ->
+                onNavigateToDeviceDetail = { deviceId ->
                     navController.navigate(DeviceDetailRoute(deviceId = deviceId))
+                },
+                onNavigateToTicketDetail = { ticketId ->
+                    navController.navigate(TicketDetailRoute(id = ticketId))
+                },
+                onCreateTicket = {
+                    navController.navigate(CreateTicketRoute)
                 },
                 onLogout = {
                     navController.navigate(LoginRoute) {
@@ -120,6 +129,24 @@ fun AppNavigation(authPreferences: AuthPreferences) {
             DeviceDetailScreen(
                 deviceId = route.deviceId,
                 onBack = { navController.popBackStack() }
+            )
+        }
+
+        composable<TicketDetailRoute> { backStackEntry ->
+            val route = backStackEntry.toRoute<TicketDetailRoute>()
+            TicketDetailScreen(
+                ticketId = route.id,
+                onBack = { navController.popBackStack() }
+            )
+        }
+
+        composable<CreateTicketRoute> {
+            CreateTicketScreen(
+                onBack = { navController.popBackStack() },
+                onSuccessCreation = { newTicketId ->
+                    navController.popBackStack()
+                    navController.navigate(TicketDetailRoute(id = newTicketId))
+                }
             )
         }
     }
