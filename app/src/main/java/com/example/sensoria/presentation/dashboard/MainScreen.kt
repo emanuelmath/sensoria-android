@@ -31,6 +31,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import com.example.sensoria.core.theme.components.LocalToastController
 import com.example.sensoria.core.theme.components.ToastType
+import com.example.sensoria.presentation.alerts.AlertsScreen
+import com.example.sensoria.presentation.alerts.AlertsViewModel
 import com.example.sensoria.presentation.support.SupportScreen
 import com.example.sensoria.presentation.support.SupportViewModel
 
@@ -118,7 +120,10 @@ fun MainScreen(
                     val viewModel: DashboardViewModel = hiltViewModel()
                     DevicesScreen(companyId, viewModel, onNavigateToDeviceDetail)
                 }
-                MainTab.ALERTS -> Text("Alertas", Modifier.padding(16.dp))
+                MainTab.ALERTS -> {
+                    val alertsViewModel: AlertsViewModel = hiltViewModel()
+                    AlertsScreen(viewModel = alertsViewModel)
+                }
                 MainTab.SUPPORT -> {
                     val supportViewModel: SupportViewModel = hiltViewModel()
                     SupportScreen(

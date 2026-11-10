@@ -33,7 +33,6 @@ object RetrofitClient {
             .build()
     }
 
-    // 2. Creación de APIs ultra limpia
     fun createAuthApi(authPreferences: AuthPreferences): AuthApi =
         createRetrofit(authPreferences).create(AuthApi::class.java)
 
@@ -42,4 +41,7 @@ object RetrofitClient {
 
     fun createTicketApi(authPreferences: AuthPreferences): TicketApi =
         createRetrofit(authPreferences).create(TicketApi::class.java)
+
+    fun createAlertApi(authPreferences: AuthPreferences): AlertApi =
+        createRetrofit(authPreferences).create(AlertApi::class.java)
 }

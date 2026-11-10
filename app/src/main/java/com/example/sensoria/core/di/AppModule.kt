@@ -3,27 +3,33 @@ package com.example.sensoria.core.di
 import android.content.Context
 import com.example.sensoria.data.local.AuthPreferences
 import com.example.sensoria.data.local.dataStore
+import com.example.sensoria.data.remote.AlertApi
 import com.example.sensoria.data.remote.AuthApi
 import com.example.sensoria.data.remote.DeviceApi
 import com.example.sensoria.data.remote.RetrofitClient
 import com.example.sensoria.data.remote.TicketApi
+import com.example.sensoria.data.repositories.AlertRepositoryImpl
 import com.example.sensoria.data.repositories.AuthRepositoryImpl
 import com.example.sensoria.data.repositories.DeviceRepositoryImpl
 import com.example.sensoria.data.repositories.TicketRepositoryImpl
+import com.example.sensoria.domain.repositories.AlertRepository
 import com.example.sensoria.domain.repositories.AuthRepository
 import com.example.sensoria.domain.repositories.DeviceRepository
 import com.example.sensoria.domain.repositories.TicketRepository
 import com.example.sensoria.domain.usecases.CreateTicketUseCase
+import com.example.sensoria.domain.usecases.GetAlertsUseCase
 import com.example.sensoria.domain.usecases.GetMyCompaniesUseCase
 import com.example.sensoria.domain.usecases.GetTicketDetailUseCase
 import com.example.sensoria.domain.usecases.GetTicketsUseCase
 import com.example.sensoria.domain.usecases.LoginUseCase
 import com.example.sensoria.domain.usecases.ReplyTicketUseCase
+import com.example.sensoria.domain.usecases.ResolveAlertUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import retrofit2.Retrofit
 import javax.inject.Singleton
 
 @Module
@@ -119,5 +125,30 @@ object AppModule {
     @Singleton
     fun provideGetMyCompaniesUseCase(repository: AuthRepository): GetMyCompaniesUseCase {
         return GetMyCompaniesUseCase(repository)
+    }
+
+
+    @Provides
+    @Singleton
+    fun provideAlertApi(authPreferences: AuthPreferences): AlertApi {
+        return RetrofitClient.createAlertApi(authPreferences)
+    }
+
+    @Provides
+    @Singleton
+    fun provideAlertRepository(api: AlertApi): AlertRepository {
+        return AlertRepositoryImpl(api)
+    }
+
+    @Provides
+    @Singleton
+    fun provideGetAlertsUseCase(repository: AlertRepository): GetAlertsUseCase {
+        return GetAlertsUseCase(repository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideResolveAlertUseCa(repository: AlertRepository): ResolveAlertUseCase {
+        return ResolveAlertUseCase(repository)
     }
 }

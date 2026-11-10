@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.sensoria.core.theme.glassSurface
@@ -43,24 +44,26 @@ fun DevicesScreen(
                 CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
             }
         } else {
-           if(devices.isEmpty()) {
-               Text("No tienes dispositivos aún.")
-           } else {
-               LazyColumn(
-                   verticalArrangement = Arrangement.spacedBy(12.dp),
-                   contentPadding = PaddingValues(bottom = 16.dp)
-               ) {
-                   items(devices) { device ->
-                       DeviceCard(device, onClick = { onDeviceClick(device.id) })
-                   }
-               }
-           }
+            if (devices.isEmpty()) {
+                Text("No tienes dispositivos aún.")
+            } else {
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    contentPadding = PaddingValues(bottom = 16.dp)
+                ) {
+                    items(devices, key = { it.id }) { device ->
+                        DeviceCard(device, onClick = { onDeviceClick(device.id) })
+                    }
+                }
+            }
         }
     }
 }
 
 @Composable
 fun DeviceCard(device: Device, onClick: () -> Unit) {
+    val hasData = device.lastReading != "Sin datos"
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -69,12 +72,28 @@ fun DeviceCard(device: Device, onClick: () -> Unit) {
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Box(modifier = Modifier.size(12.dp).clip(RoundedCornerShape(50)).background(if (device.isOnline) Color(0xFF589445) else Color.Red))
+        Box(
+            modifier = Modifier
+                .size(12.dp)
+                .clip(RoundedCornerShape(50))
+                .background(if (device.isOnline) Color(0xFF589445) else Color.Red)
+        )
         Spacer(modifier = Modifier.width(16.dp))
+
         Column(modifier = Modifier.weight(1f)) {
             Text(text = device.name, fontWeight = FontWeight.Bold, fontSize = 16.sp)
             Text(text = device.type, fontSize = 12.sp, color = Color.DarkGray)
         }
-        Text(text = device.lastReading, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.primary)
+
+        Spacer(modifier = Modifier.width(8.dp))
+
+        Text(
+            text = device.lastReading,
+            fontWeight = if (hasData) FontWeight.SemiBold else FontWeight.Normal,
+            fontSize = if (hasData) 16.sp else 13.sp,
+            color = if (hasData) MaterialTheme.colorScheme.primary else Color.Gray,
+            textAlign = TextAlign.End,
+            modifier = Modifier.widthIn(max = 140.dp)
+        )
     }
 }
