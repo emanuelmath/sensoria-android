@@ -10,7 +10,7 @@ data class LoginResponse(
 
 @Serializable
 data class UserDto(
-    val id: String,
+    val id: Int,
     val name: String,
     val email: String,
     val companies: List<CompanyDto> = emptyList()
@@ -18,6 +18,10 @@ data class UserDto(
 
 @Serializable
 data class CompanyDto(
-    val id: String,
-    val name: String? = null
+    val id: Int,
+    val name: String? = null,
+    val role: String
 )
+
+@Serializable
+data class CompanyListResponse(val data: List<CompanyDto>)

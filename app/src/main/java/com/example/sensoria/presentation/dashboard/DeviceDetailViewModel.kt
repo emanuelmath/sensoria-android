@@ -2,7 +2,6 @@ package com.example.sensoria.presentation.dashboard
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.sensoria.domain.models.TelemetryReading
 import com.example.sensoria.domain.usecases.GetDeviceTelemetryUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow

@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.sensoria.core.theme.PrimaryGreen
+import com.example.sensoria.core.theme.components.ToastType
 import com.example.sensoria.core.theme.glassSurface
 import com.example.sensoria.domain.models.Ticket
 

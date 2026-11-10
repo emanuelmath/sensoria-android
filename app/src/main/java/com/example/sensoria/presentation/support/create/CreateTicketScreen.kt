@@ -1,6 +1,5 @@
 package com.example.sensoria.presentation.support.create
 
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -18,6 +17,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.sensoria.core.theme.PrimaryGreen
+import com.example.sensoria.core.theme.components.LocalToastController
+import com.example.sensoria.core.theme.components.ToastType
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -27,7 +28,6 @@ fun CreateTicketScreen(
     viewModel: CreateTicketViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    val context = LocalContext.current
 
     var subject by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
@@ -40,15 +40,16 @@ fun CreateTicketScreen(
     var selectedPriority by remember { mutableStateOf("MEDIA") }
     val priorities = listOf("BAJA", "MEDIA", "ALTA", "CRITICA")
 
+    val showToast = LocalToastController.current
+
     LaunchedEffect(uiState) {
         when (uiState) {
             is CreateTicketUiState.Success -> {
-                Toast.makeText(context, "Ticket creado exitosamente", Toast.LENGTH_SHORT).show()
                 onSuccessCreation((uiState as CreateTicketUiState.Success).newTicketId)
                 viewModel.resetState()
             }
             is CreateTicketUiState.Error -> {
-                Toast.makeText(context, (uiState as CreateTicketUiState.Error).message, Toast.LENGTH_LONG).show()
+                showToast((uiState as CreateTicketUiState.Error).message, ToastType.ERROR)
                 viewModel.resetState()
             }
             else -> {}

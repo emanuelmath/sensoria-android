@@ -14,6 +14,7 @@ import com.example.sensoria.domain.repositories.AuthRepository
 import com.example.sensoria.domain.repositories.DeviceRepository
 import com.example.sensoria.domain.repositories.TicketRepository
 import com.example.sensoria.domain.usecases.CreateTicketUseCase
+import com.example.sensoria.domain.usecases.GetMyCompaniesUseCase
 import com.example.sensoria.domain.usecases.GetTicketDetailUseCase
 import com.example.sensoria.domain.usecases.GetTicketsUseCase
 import com.example.sensoria.domain.usecases.LoginUseCase
@@ -112,5 +113,11 @@ object AppModule {
     @Singleton
     fun provideCreateTicketUseCase(repository: TicketRepository): CreateTicketUseCase {
         return CreateTicketUseCase(repository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideGetMyCompaniesUseCase(repository: AuthRepository): GetMyCompaniesUseCase {
+        return GetMyCompaniesUseCase(repository)
     }
 }

@@ -9,8 +9,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -21,6 +25,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.example.sensoria.R
+import com.example.sensoria.core.theme.components.LocalToastController
+import com.example.sensoria.core.theme.components.SensoriaToast
+import com.example.sensoria.core.theme.components.ToastEvent
+import com.example.sensoria.core.theme.components.ToastType
 import com.example.sensoria.data.local.AuthPreferences
 import com.example.sensoria.domain.models.Company
 import com.example.sensoria.presentation.auth.LoginScreen
@@ -28,6 +36,7 @@ import com.example.sensoria.presentation.auth.LoginViewModel
 import com.example.sensoria.presentation.auth.CompanySelectionScreen
 import com.example.sensoria.presentation.dashboard.MainScreen
 import com.example.sensoria.presentation.dashboard.DeviceDetailScreen
+import com.example.sensoria.presentation.profile.changecompany.ChangeCompanyScreen
 import com.example.sensoria.presentation.support.create.CreateTicketScreen
 import com.example.sensoria.presentation.support.detail.TicketDetailScreen
 import com.example.sensoria.presentation.support.detail.TicketDetailViewModel
@@ -40,6 +49,12 @@ fun AppNavigation(authPreferences: AuthPreferences) {
 
     val token by authPreferences.getAuthToken.collectAsState(initial = "LOADING")
     val savedCompanyId by authPreferences.getCurrentCompanyId.collectAsState(initial = "LOADING")
+
+    var toastEvent by remember { mutableStateOf<ToastEvent?>(null) }
+
+    val showGlobalToast: (String, ToastType) -> Unit = { message, type ->
+        toastEvent = ToastEvent(message, type)
+    }
 
     if (token == "LOADING" || savedCompanyId == "LOADING") {
         Box(
@@ -65,89 +80,110 @@ fun AppNavigation(authPreferences: AuthPreferences) {
     } else {
         LoginRoute
     }
+    CompositionLocalProvider(LocalToastController provides showGlobalToast) {
+    Box(modifier = Modifier.fillMaxSize()) {
+        NavHost(navController = navController, startDestination = startDestination) {
 
-    NavHost(navController = navController, startDestination = startDestination) {
-
-        composable<LoginRoute> {
-            val loginViewModel: LoginViewModel = hiltViewModel()
-            LoginScreen(
-                viewModel = loginViewModel,
-                onLoginSuccess = { companyId ->
-                    navController.navigate(MainRoute(companyId = companyId)) {
-                        popUpTo(LoginRoute) { inclusive = true }
+            composable<LoginRoute> {
+                val loginViewModel: LoginViewModel = hiltViewModel()
+                LoginScreen(
+                    viewModel = loginViewModel,
+                    onLoginSuccess = { companyId ->
+                        showGlobalToast("¡Bienvenido a Sensoría!", ToastType.SUCCESS)
+                        navController.navigate(MainRoute(companyId = companyId)) {
+                            popUpTo(LoginRoute) { inclusive = true }
+                        }
+                    },
+                    onRequireSelection = { companies ->
+                        val companiesJson = Uri.encode(Json.encodeToString(companies))
+                        navController.navigate(CompanySelectionRoute(companiesJson = companiesJson))
                     }
-                },
-                onRequireSelection = { companies ->
-                    // Convertimos la lista a JSON y codificamos la URI para que los espacios/símbolos no rompan la ruta.
-                    val companiesJson = Uri.encode(Json.encodeToString(companies))
-                    navController.navigate(CompanySelectionRoute(companiesJson = companiesJson))
-                }
-            )
-        }
+                )
+            }
 
-        composable<CompanySelectionRoute> { backStackEntry ->
-            val route = backStackEntry.toRoute<CompanySelectionRoute>()
-            // Decodificamos la URI y reconstruimos la lista.
-            val decodedJson = Uri.decode(route.companiesJson)
-            val companies = Json.decodeFromString<List<Company>>(decodedJson)
+            composable<CompanySelectionRoute> { backStackEntry ->
+                val route = backStackEntry.toRoute<CompanySelectionRoute>()
+                val decodedJson = Uri.decode(route.companiesJson)
+                val companies = Json.decodeFromString<List<Company>>(decodedJson)
 
-            CompanySelectionScreen(
-                companies = companies,
-                authPreferences = authPreferences,
-                onCompanySelected = { companyId ->
-                    navController.navigate(MainRoute(companyId = companyId)) {
-                        // Limpiamos el stack completo para que no pueda volver con el botón "Atrás".
-                        popUpTo(0) { inclusive = true }
+                CompanySelectionScreen(
+                    companies = companies,
+                    authPreferences = authPreferences,
+                    onCompanySelected = { companyId ->
+                        showGlobalToast("¡Bienvenido a Sensoría!", ToastType.SUCCESS)
+                        navController.navigate(MainRoute(companyId = companyId)) {
+                            popUpTo(0) { inclusive = true }
+                        }
                     }
-                }
-            )
-        }
+                )
+            }
 
-        composable<MainRoute> { backStackEntry ->
-            val route = backStackEntry.toRoute<MainRoute>()
-            MainScreen(
-                companyId = route.companyId,
-                onNavigateToDeviceDetail = { deviceId ->
-                    navController.navigate(DeviceDetailRoute(deviceId = deviceId))
-                },
-                onNavigateToTicketDetail = { ticketId ->
-                    navController.navigate(TicketDetailRoute(id = ticketId))
-                },
-                onCreateTicket = {
-                    navController.navigate(CreateTicketRoute)
-                },
-                onLogout = {
-                    navController.navigate(LoginRoute) {
-                        popUpTo(0) { inclusive = true }
+            composable<MainRoute> { backStackEntry ->
+                val route = backStackEntry.toRoute<MainRoute>()
+                MainScreen(
+                    companyId = route.companyId,
+                    onNavigateToDeviceDetail = { deviceId ->
+                        navController.navigate(DeviceDetailRoute(deviceId = deviceId))
+                    },
+                    onNavigateToTicketDetail = { ticketId ->
+                        navController.navigate(TicketDetailRoute(id = ticketId))
+                    },
+                    onCreateTicket = {
+                        navController.navigate(CreateTicketRoute)
+                    },
+                    onChangeCompanyClick = {
+                        navController.navigate(ChangeCompanyRoute)
+                    },
+                    onLogout = {
+                        navController.navigate(LoginRoute) {
+                            popUpTo(0) { inclusive = true }
+                        }
+                        showGlobalToast("¡Hasta la próxima!", ToastType.SUCCESS)
                     }
-                }
-            )
+                )
+            }
+
+            composable<DeviceDetailRoute> { backStackEntry ->
+                val route = backStackEntry.toRoute<DeviceDetailRoute>()
+                DeviceDetailScreen(
+                    deviceId = route.deviceId,
+                    onBack = { navController.popBackStack() }
+                )
+            }
+
+            composable<TicketDetailRoute> { backStackEntry ->
+                val route = backStackEntry.toRoute<TicketDetailRoute>()
+                TicketDetailScreen(
+                    ticketId = route.id,
+                    onBack = { navController.popBackStack() }
+                )
+            }
+
+            composable<CreateTicketRoute> {
+                CreateTicketScreen(
+                    onBack = { navController.popBackStack() },
+                    onSuccessCreation = { newTicketId ->
+                        showGlobalToast("Ticket creado exitosamente", ToastType.SUCCESS)
+                        navController.popBackStack()
+                        navController.navigate(TicketDetailRoute(id = newTicketId))
+                    }
+                )
+            }
+
+            composable<ChangeCompanyRoute> {
+                ChangeCompanyScreen(
+                    onBack = { navController.popBackStack() }
+                )
+            }
         }
 
-        composable<DeviceDetailRoute> { backStackEntry ->
-            val route = backStackEntry.toRoute<DeviceDetailRoute>()
-            DeviceDetailScreen(
-                deviceId = route.deviceId,
-                onBack = { navController.popBackStack() }
-            )
-        }
 
-        composable<TicketDetailRoute> { backStackEntry ->
-            val route = backStackEntry.toRoute<TicketDetailRoute>()
-            TicketDetailScreen(
-                ticketId = route.id,
-                onBack = { navController.popBackStack() }
-            )
-        }
-
-        composable<CreateTicketRoute> {
-            CreateTicketScreen(
-                onBack = { navController.popBackStack() },
-                onSuccessCreation = { newTicketId ->
-                    navController.popBackStack()
-                    navController.navigate(TicketDetailRoute(id = newTicketId))
-                }
-            )
+        SensoriaToast(
+            message = toastEvent?.message ?: "",
+            type = toastEvent?.type ?: ToastType.INFO,
+            isVisible = toastEvent != null,
+            onDismiss = { toastEvent = null }
+        )
         }
     }
 }

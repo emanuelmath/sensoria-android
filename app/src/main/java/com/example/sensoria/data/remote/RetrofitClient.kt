@@ -20,6 +20,7 @@ object RetrofitClient {
         val client = OkHttpClient.Builder()
             .addInterceptor(logging)
             .addInterceptor(AuthInterceptor(authPreferences))
+            .retryOnConnectionFailure(true)
             .build()
 
         val networkJson = Json { ignoreUnknownKeys = true }

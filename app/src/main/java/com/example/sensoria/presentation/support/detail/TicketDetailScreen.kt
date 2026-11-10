@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.sensoria.core.theme.PrimaryGreen
+import com.example.sensoria.core.utils.formatDateTime
 import com.example.sensoria.domain.models.TicketMessage
 import kotlinx.coroutines.launch
 
@@ -145,7 +146,12 @@ private fun MessageBubble(message: TicketMessage) {
                 }
                 Text(text = message.message, color = textColor, fontSize = 14.sp)
                 Spacer(modifier = Modifier.height(4.dp))
-                Text(text = message.createdAt, fontSize = 9.sp, color = textColor.copy(alpha = 0.7f), modifier = Modifier.align(Alignment.End))
+                Text(
+                    text = formatDateTime(message.createdAt),
+                    fontSize = 10.sp,
+                    color = textColor.copy(alpha = 0.7f),
+                    modifier = Modifier.align(Alignment.End)
+                )
             }
         }
     }

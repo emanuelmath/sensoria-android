@@ -29,6 +29,8 @@ import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import com.example.sensoria.core.theme.components.LocalToastController
+import com.example.sensoria.core.theme.components.ToastType
 import com.example.sensoria.presentation.support.SupportScreen
 import com.example.sensoria.presentation.support.SupportViewModel
 
@@ -48,9 +50,18 @@ fun MainScreen(
     onNavigateToDeviceDetail: (String) -> Unit,
     onNavigateToTicketDetail: (Int) -> Unit,
     onCreateTicket: () -> Unit,
+    onChangeCompanyClick: () -> Unit = {},
     onLogout: () -> Unit
 ) {
+    val showToast = LocalToastController.current
     var selectedTab by remember { mutableStateOf(MainTab.DEVICES) }
+    var showToastWelcome by remember { mutableStateOf(true) }
+
+//    LaunchedEffect(Unit) {
+//        if(showToastWelcome) {
+//            showToast("¡Bienvenido de nuevo!", ToastType.SUCCESS)
+//        }
+//    }
 
     Scaffold(
         containerColor = BackgroundLight,
@@ -120,7 +131,8 @@ fun MainScreen(
                     val profileViewModel: ProfileViewModel = hiltViewModel()
                     ProfileScreen(
                         viewModel = profileViewModel,
-                        onLogout = onLogout
+                        onLogout = onLogout,
+                        onChangeCompanyClick = onChangeCompanyClick
                     )
                 }
             }

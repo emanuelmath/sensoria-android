@@ -1,5 +1,6 @@
 package com.example.sensoria.data.repositories
 
+import android.util.Log
 import com.example.sensoria.data.remote.DeviceApi
 import com.example.sensoria.domain.models.Device
 import com.example.sensoria.domain.models.DeviceTelemetry

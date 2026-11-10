@@ -22,9 +22,9 @@ class AuthRepositoryImpl(
 
             val companiesDomain = response.user.companies.map { dto ->
                 Company(
-                    id = dto.id,
+                    id = dto.id.toString(),
                     name = dto.name ?: "Workspace sin nombre",
-                    role = "PENDIENTE"
+                    role = dto.role
                 )
             }
             val userDomain: User
@@ -35,7 +35,7 @@ class AuthRepositoryImpl(
                 val defaultCompanyName = defaultCompany?.name ?: "Sin Empresa"
 
                 userDomain = User(
-                    id = response.user.id,
+                    id = response.user.id.toString(),
                     name = response.user.name,
                     email = response.user.email,
                     companies = companiesDomain,
@@ -46,11 +46,14 @@ class AuthRepositoryImpl(
                     token = response.token,
                     companyId = defaultCompanyId ?: "",
                     userName = userDomain.name,
-                    companyName = defaultCompanyName
+                    email = userDomain.email,
+                    companyName = defaultCompanyName,
+                    role = defaultCompany?.role ?: "",
+                    numberOfCompanies = companiesDomain.size
                 )
             } else {
                 userDomain = User(
-                    id = response.user.id,
+                    id = response.user.id.toString(),
                     name = response.user.name,
                     email = response.user.email,
                     companies = companiesDomain,
@@ -61,7 +64,10 @@ class AuthRepositoryImpl(
                     token = response.token,
                     companyId = "",
                     userName = userDomain.name,
-                    companyName = ""
+                    email = userDomain.email,
+                    companyName = "",
+                    role = "",
+                    numberOfCompanies = companiesDomain.size
                 )
             }
 
@@ -89,6 +95,24 @@ class AuthRepositoryImpl(
         } catch (e: Exception) {
             preferences.clearAuthData()
             Result.success(Unit)
+        }
+    }
+
+    override suspend fun getMyCompanies(): Result<List<Company>> {
+        return try {
+            val response = api.getMyCompanies()
+            val domainCompanies = response.data.map { dto ->
+                Company(
+                    id = dto.id.toString(),
+                    name = dto.name ?: "Empresa sin nombre",
+                    role = dto.role
+                )
+            }
+            if(domainCompanies.isNotEmpty()) { preferences.saveNumberOfCompanies(domainCompanies.size) }
+            Result.success(domainCompanies)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Result.failure(Exception("Error al cargar las empresas."))
         }
     }
 }

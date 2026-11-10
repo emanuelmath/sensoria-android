@@ -10,3 +10,6 @@ data class CompanySelectionRoute(val companiesJson: String)
 @Serializable data class TicketDetailRoute(val id: Int)
 @Serializable
 object CreateTicketRoute
+
+@Serializable
+object ChangeCompanyRoute

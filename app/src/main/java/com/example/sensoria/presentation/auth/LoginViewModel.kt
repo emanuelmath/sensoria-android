@@ -31,7 +31,7 @@ class LoginViewModel @Inject constructor(
                         _uiState.value = LoginUiState.Error("No tienes un espacio de trabajo asignado.")
                     }
                     user.companies.size == 1 -> {
-                        _uiState.value = LoginUiState.Success(user.companies.first().id)
+                        _uiState.value = LoginUiState.Success(user.companies.first().id, "¡Bienvenido de nuevo!")
                     }
                     else -> {
                         _uiState.value = LoginUiState.RequireCompanySelection(user.companies)

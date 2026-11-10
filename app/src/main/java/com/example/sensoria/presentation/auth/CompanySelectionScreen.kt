@@ -56,7 +56,7 @@ fun CompanySelectionScreen(
                         .clickable {
                             // Guardamos la empresa elegida en el DataStore antes de navegar.
                             coroutineScope.launch {
-                                authPreferences.saveCompanySelection(company.id, company.name)
+                                authPreferences.saveCompanySelection(company.id, company.name, company.role, companies.size)
                                 onCompanySelected(company.id)
                             }
                         },

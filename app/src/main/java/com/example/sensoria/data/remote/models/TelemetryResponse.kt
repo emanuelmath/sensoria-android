@@ -15,5 +15,5 @@ data class TelemetryReadingDto(
     val id: Int,
     val value: Float,
     val unit: String,
-    val timestamp: String
+    val timestamp: String?
 )

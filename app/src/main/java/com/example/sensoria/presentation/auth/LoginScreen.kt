@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.sensoria.core.theme.glassSurface
 import com.example.sensoria.R
+import com.example.sensoria.core.theme.components.SensoriaToast
 import com.example.sensoria.domain.models.Company
 
 @Composable
@@ -118,7 +119,9 @@ fun LoginScreen(
                 is LoginUiState.Success -> {
                     LaunchedEffect(Unit) {
                         onLoginSuccess((uiState as LoginUiState.Success).companyId)
+                       // SensoriaToast((uiState as LoginUiState.Success).message)
                     }
+
                 }
                 is LoginUiState.RequireCompanySelection -> {
                     LaunchedEffect(Unit) {
